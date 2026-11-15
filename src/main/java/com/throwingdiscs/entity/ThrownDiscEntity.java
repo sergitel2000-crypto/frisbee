@@ -119,7 +119,7 @@ public class ThrownDiscEntity extends Entity {
 		setPosition(center.x, center.y - CENTER_OFFSET, center.z);
 
 		ThrowingDiscItem item = (ThrowingDiscItem) stack.getItem();
-		play((ServerWorld) getWorld(), SoundEvents.ITEM_TRIDENT_THROW, center, 0.8f, 1.4f * item.getDiscPitch());
+		play((ServerWorld) getWorld(), SoundEvents.ITEM_TRIDENT_THROW.value(), center, 0.8f, 1.4f * item.getDiscPitch());
 	}
 
 	public ItemStack getStack() {
@@ -376,7 +376,7 @@ public class ThrownDiscEntity extends Entity {
 		Vec3d seg = b.subtract(a);
 		Vec3d dirN = seg.lengthSquared() > 1.0E-8 ? seg.normalize() : dir;
 		Box search = new Box(a, b).expand(DISC_RADIUS + 2.0);
-		for (LivingEntity t : world.getEntitiesByClass(LivingEntity.class, search, e -> e.isAlive() && e != this)) {
+		for (LivingEntity t : world.getEntitiesByClass(LivingEntity.class, search, e -> e.isAlive())) {
 			UUID id = t.getUuid();
 			if (id.equals(ownerUuid) || legHits.contains(id) || hitCounts.getOrDefault(id, 0) >= MAX_HITS_PER_TARGET) continue;
 			if (!canHit(world, t, owner)) continue;
