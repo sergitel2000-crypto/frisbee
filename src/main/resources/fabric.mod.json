@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "throwing_discs",
+  "version": "${version}",
+  "name": "Throwing Discs",
+  "description": "Copper, iron, golden, diamond & netherite throwing discs. Ricochets, pierces, returns. Java port of the Bedrock addon by Ace.",
+  "authors": ["Ace (original Bedrock addon)"],
+  "license": "All-Rights-Reserved",
+  "icon": "assets/throwing_discs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.throwingdiscs.ThrowingDiscs"],
+    "client": ["com.throwingdiscs.client.ThrowingDiscsClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

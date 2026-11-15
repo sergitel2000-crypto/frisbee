@@ -1,0 +1,8 @@
+{
+  "item.throwing_discs.copper_throwing_disc": "Disco arrojadizo de cobre",
+  "item.throwing_discs.iron_throwing_disc": "Disco arrojadizo de hierro",
+  "item.throwing_discs.golden_throwing_disc": "Disco arrojadizo de oro",
+  "item.throwing_discs.diamond_throwing_disc": "Disco arrojadizo de diamante",
+  "item.throwing_discs.netherite_throwing_disc": "Disco arrojadizo de netherita",
+  "entity.throwing_discs.thrown_disc": "Disco arrojadizo"
+}
