@@ -3,7 +3,9 @@ package com.throwingdiscs;
 import com.throwingdiscs.entity.ModEntities;
 import com.throwingdiscs.item.ModItems;
 import net.fabricmc.api.ModInitializer;
+import com.throwingdiscs.network.BlueFirePayload;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.condition.RandomChanceLootCondition;
 import net.minecraft.loot.entry.ItemEntry;
@@ -19,6 +21,7 @@ public class ThrowingDiscs implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		PayloadTypeRegistry.playS2C().register(BlueFirePayload.ID, BlueFirePayload.CODEC);
 		ModEntities.register();
 		ModItems.register();
 

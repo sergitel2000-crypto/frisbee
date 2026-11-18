@@ -8,6 +8,12 @@
   "license": "All-Rights-Reserved",
   "icon": "assets/throwing_discs/icon.png",
   "environment": "*",
+  "mixins": [
+    {
+      "config": "throwing_discs.client.mixins.json",
+      "environment": "client"
+    }
+  ],
   "entrypoints": {
     "main": ["com.throwingdiscs.ThrowingDiscs"],
     "client": ["com.throwingdiscs.client.ThrowingDiscsClient"]

@@ -2,6 +2,10 @@ package com.throwingdiscs.entity;
 
 import com.throwingdiscs.ThrowingDiscs;
 import com.throwingdiscs.item.ThrowingDiscItem;
+import com.throwingdiscs.network.BlueFirePayload;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
@@ -436,6 +440,12 @@ public class ThrownDiscEntity extends Entity {
 		if (!target.damage(source, damage)) return;
 
 		if (burns) {
+			// Sets the target on fire (normal burning damage); clients draw that fire in blue.
+			target.setOnFireFor(3 + 2 * flame);
+			BlueFirePayload payload = new BlueFirePayload(target.getId());
+			for (ServerPlayerEntity viewer : PlayerLookup.tracking(target)) {
+				ServerPlayNetworking.send(viewer, payload);
+			}
 			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, target.getX(), target.getBodyY(0.5), target.getZ(),
 				10 + 6 * flame, target.getWidth() * 0.4, target.getHeight() * 0.4, target.getWidth() * 0.4, 0.03);
 		}
