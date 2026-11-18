@@ -1,0 +1,21 @@
+{
+  "description": {
+    "translate": "enchantment.throwing_discs.reach"
+  },
+  "supported_items": "#throwing_discs:enchantable/disc",
+  "primary_items": "#throwing_discs:enchantable/disc",
+  "weight": 5,
+  "max_level": 3,
+  "min_cost": {
+    "base": 8,
+    "per_level_above_first": 8
+  },
+  "max_cost": {
+    "base": 38,
+    "per_level_above_first": 8
+  },
+  "anvil_cost": 4,
+  "slots": [
+    "hand"
+  ]
+}

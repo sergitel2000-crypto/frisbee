@@ -1,8 +1,10 @@
 package com.throwingdiscs.entity;
 
+import com.throwingdiscs.ThrowingDiscs;
 import com.throwingdiscs.item.ThrowingDiscItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -13,6 +15,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
@@ -20,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.EntityTypeTags;
@@ -92,6 +96,8 @@ public class ThrownDiscEntity extends Entity {
 	private final Set<UUID> legHits = new HashSet<>();
 	private final Map<UUID, Integer> hitCounts = new HashMap<>();
 	private int sharpness, smite, bane, knockback, fireAspect;
+	// custom enchantments of this mod
+	private int rebound, reach, swiftReturn, piercing, slash, flame;
 
 	public ThrownDiscEntity(EntityType<? extends ThrownDiscEntity> type, World world) {
 		super(type, world);
@@ -106,6 +112,7 @@ public class ThrownDiscEntity extends Entity {
 		this.creative = creative;
 		setStack(stack);
 		refreshEnchantments();
+		outLeft = OUT_TICKS + 4 * reach;
 
 		Vec3d look = owner.getRotationVec(1.0f).normalize();
 		this.dir = look;
@@ -138,6 +145,18 @@ public class ThrownDiscEntity extends Entity {
 		bane = EnchantmentHelper.getLevel(lookup.getOrThrow(Enchantments.BANE_OF_ARTHROPODS), s);
 		knockback = EnchantmentHelper.getLevel(lookup.getOrThrow(Enchantments.KNOCKBACK), s);
 		fireAspect = EnchantmentHelper.getLevel(lookup.getOrThrow(Enchantments.FIRE_ASPECT), s);
+
+		rebound = customLevel(lookup, s, "rebound");
+		reach = customLevel(lookup, s, "reach");
+		swiftReturn = customLevel(lookup, s, "swift_return");
+		piercing = customLevel(lookup, s, "piercing");
+		slash = customLevel(lookup, s, "slash");
+		flame = customLevel(lookup, s, "flame_discharge");
+	}
+
+	private static int customLevel(net.minecraft.registry.RegistryEntryLookup<Enchantment> lookup, ItemStack stack, String name) {
+		RegistryKey<Enchantment> key = RegistryKey.of(RegistryKeys.ENCHANTMENT, ThrowingDiscs.id(name));
+		return lookup.getOptional(key).map(e -> EnchantmentHelper.getLevel(e, stack)).orElse(0);
 	}
 
 	@Override
@@ -245,7 +264,7 @@ public class ThrownDiscEntity extends Entity {
 							play(world, SoundEvents.ITEM_TRIDENT_HIT_GROUND, contact.point, 0.9f, 1.55f * item.getDiscPitch());
 							spark(world, contact.point);
 							if (kind == Kind.BELL) play(world, SoundEvents.BLOCK_BELL_USE, contact.point, 1.0f, 1.0f);
-							if (bounces > MAX_BOUNCES) startReturn(world, end, owner != null, item);
+							if (bounces > MAX_BOUNCES + 2 * rebound) startReturn(world, end, owner != null, item);
 						}
 					}
 				}
@@ -280,8 +299,8 @@ public class ThrownDiscEntity extends Entity {
 
 			// Boomerang return: momentum decays while a pull toward the thrower builds,
 			// so it slows, stops and flies straight back (curving only if you've moved).
-			double maxSpeed = RETURN_MAX_SPEED * (item.getDiscSpeed() / 1.3);
-			vel = vel.multiply(RETURN_DRAG).add(toTarget.normalize().multiply(RETURN_PULL));
+			double maxSpeed = RETURN_MAX_SPEED * (item.getDiscSpeed() / 1.3) * (1 + 0.2 * swiftReturn);
+			vel = vel.multiply(RETURN_DRAG).add(toTarget.normalize().multiply(RETURN_PULL * (1 + 0.35 * swiftReturn)));
 			double speed = vel.length();
 			if (speed > maxSpeed) vel = vel.multiply(maxSpeed / speed);
 			backSpeed = Math.min(speed, maxSpeed);
@@ -304,6 +323,10 @@ public class ThrownDiscEntity extends Entity {
 				vel = vel.subtract(contact.normal.multiply(vin)).multiply(0.85);
 				dir = safeNormalize(vel, dir);
 			}
+		}
+
+		if (flame > 0) {
+			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, end.x, end.y, end.z, 2, 0.08, 0.08, 0.08, 0.01);
 		}
 
 		hitAlong(world, center, end, owner, item);
@@ -334,7 +357,7 @@ public class ThrownDiscEntity extends Entity {
 		returning = true;
 		backSpeed = RETURN_START_SPEED;
 		// Keeps its momentum, slows, then comes straight back - no sideways swing.
-		vel = dir.multiply(item.getDiscSpeed() * 0.8);
+		vel = dir.multiply(item.getDiscSpeed() * Math.max(0.2, 0.8 - 0.2 * swiftReturn));
 		legHits.clear();
 		if (ownerPresent) play(world, SoundEvents.ITEM_TRIDENT_RETURN, at, 0.6f, 1.35f * item.getDiscPitch());
 	}
@@ -378,7 +401,7 @@ public class ThrownDiscEntity extends Entity {
 		Box search = new Box(a, b).expand(DISC_RADIUS + 2.0);
 		for (LivingEntity t : world.getEntitiesByClass(LivingEntity.class, search, e -> e.isAlive())) {
 			UUID id = t.getUuid();
-			if (id.equals(ownerUuid) || legHits.contains(id) || hitCounts.getOrDefault(id, 0) >= MAX_HITS_PER_TARGET) continue;
+			if (id.equals(ownerUuid) || legHits.contains(id) || hitCounts.getOrDefault(id, 0) >= MAX_HITS_PER_TARGET + piercing) continue;
 			if (!canHit(world, t, owner)) continue;
 			Box body = t.getBoundingBox().expand(DISC_RADIUS);
 			if (!body.contains(a) && body.raycast(a, b).isEmpty()) continue;
@@ -404,8 +427,18 @@ public class ThrownDiscEntity extends Entity {
 		if (smite > 0 && target.getType().isIn(EntityTypeTags.UNDEAD)) damage += 2.5f * smite;
 		if (bane > 0 && target.getType().isIn(EntityTypeTags.ARTHROPOD)) damage += 2.5f * bane;
 
+		damage += 1.5f * slash;
+		// Flame Discharge: bonus fire damage (blue soul fire). Fire-immune targets shrug it off.
+		boolean burns = flame > 0 && !target.isFireImmune() && !target.hasStatusEffect(StatusEffects.FIRE_RESISTANCE);
+		if (burns) damage += 2.0f * flame;
+
 		DamageSource source = world.getDamageSources().thrown(this, owner);
 		if (!target.damage(source, damage)) return;
+
+		if (burns) {
+			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, target.getX(), target.getBodyY(0.5), target.getZ(),
+				10 + 6 * flame, target.getWidth() * 0.4, target.getHeight() * 0.4, target.getWidth() * 0.4, 0.03);
+		}
 
 		double kb = 0.35 + 0.5 * knockback;
 		target.takeKnockback(kb, -dirN.x, -dirN.z);

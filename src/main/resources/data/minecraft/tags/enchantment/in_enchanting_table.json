@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "throwing_discs:rebound",
+    "throwing_discs:reach",
+    "throwing_discs:swift_return",
+    "throwing_discs:piercing",
+    "throwing_discs:slash",
+    "throwing_discs:flame_discharge"
+  ]
+}

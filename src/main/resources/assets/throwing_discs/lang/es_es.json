@@ -4,5 +4,11 @@
   "item.throwing_discs.golden_throwing_disc": "Disco arrojadizo de oro",
   "item.throwing_discs.diamond_throwing_disc": "Disco arrojadizo de diamante",
   "item.throwing_discs.netherite_throwing_disc": "Disco arrojadizo de netherita",
-  "entity.throwing_discs.thrown_disc": "Disco arrojadizo"
+  "entity.throwing_discs.thrown_disc": "Disco arrojadizo",
+  "enchantment.throwing_discs.rebound": "Rebote",
+  "enchantment.throwing_discs.reach": "Alcance",
+  "enchantment.throwing_discs.swift_return": "Retorno veloz",
+  "enchantment.throwing_discs.piercing": "Perforación",
+  "enchantment.throwing_discs.slash": "Tajo",
+  "enchantment.throwing_discs.flame_discharge": "Descarga flamígera"
 }

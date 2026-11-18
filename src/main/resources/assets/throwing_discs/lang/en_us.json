@@ -4,5 +4,11 @@
   "item.throwing_discs.golden_throwing_disc": "Golden Throwing Disc",
   "item.throwing_discs.diamond_throwing_disc": "Diamond Throwing Disc",
   "item.throwing_discs.netherite_throwing_disc": "Netherite Throwing Disc",
-  "entity.throwing_discs.thrown_disc": "Throwing Disc"
+  "entity.throwing_discs.thrown_disc": "Throwing Disc",
+  "enchantment.throwing_discs.rebound": "Rebound",
+  "enchantment.throwing_discs.reach": "Reach",
+  "enchantment.throwing_discs.swift_return": "Swift Return",
+  "enchantment.throwing_discs.piercing": "Piercing",
+  "enchantment.throwing_discs.slash": "Slash",
+  "enchantment.throwing_discs.flame_discharge": "Flame Discharge"
 }
